@@ -231,10 +231,12 @@ And then using this class to query the RPM database becomes very easy. A few thi
 ```python=
 #!/usr/bin/env python
 """
-# rpmqa_simple.py - A simple CLI to query the sizes of RPM on your system
+# rpmq_simple.py - A simple CLI to query the sizes of RPM on your system
+Author: Jose Vicente Nunez
 """
 import argparse
 import textwrap
+
 from reporter import __is_valid_limit__
 from reporter.rpm_query import QueryHelper
 
@@ -245,7 +247,7 @@ if __name__ == "__main__":
         "--limit",
         type=__is_valid_limit__,  # Custom limit validator
         action="store",
-        default=QueryHelper.UNLIMITED,
+        default=QueryHelper.MAX_NUMBER_OF_RESULTS,
         help="By default results are unlimited but you can cap the results"
     )
     parser.add_argument(
@@ -266,8 +268,12 @@ if __name__ == "__main__":
         limit=args.limit,
         sorted_val=args.sort
     ) as rpm_query:
+        current = 0
         for package in rpm_query:
+            if current >= args.limit:
+                break
             print(f"{package['name']}-{package['version']}: {package['size']:,.0f}")
+            current += 1
 ```
 
 You can install our new application in something called  'development mode'. What that means is that a symbolic link is created to our sandbox, which will allow us to make changes and still test the application:
