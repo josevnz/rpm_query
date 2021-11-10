@@ -19,7 +19,7 @@ setup(
     description=__doc__,
     license="Apache",
     keywords="rpm query",
-    url="https://github.com/josevnz/tutorials/rpm_query",
+    url="https://github.com/josevnz/rpm_query",
     packages=[
         'reporter'
     ],
@@ -43,5 +43,8 @@ setup(
     ],
     scripts=[
         "bin/rpmq_simple.py",
+        "bin/rpmq_rich.py",
+        "bin/rpmq_dearpygui.py",
+        "bin/rpmq_tkinter.py"
     ]
 )
