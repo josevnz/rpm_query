@@ -119,7 +119,7 @@ It is amazing how easy was to add a table and a progress bar to the original scr
 
 So how the new improved text UI look like?
 
-![](https://i.imgur.com/k2SZ5JA.png)
+![](https://raw.githubusercontent.com/josevnz/rpm_query/main/rpmq_rich.png)
 
 
 # Using Tkinter
@@ -299,7 +299,7 @@ if __name__ == "__main__":
 
 You can see the code is more verbose now, mostly due the event handling:
 
-![](https://i.imgur.com/pEorPja.png)
+![](https://raw.githubusercontent.com/josevnz/rpm_query/main/rpmq_tkinter.png)
 
 But also means you can re-do your queries once the script starts by tweaking the parameters on the search options frame.
 
@@ -453,6 +453,10 @@ You will notice than DearPyGUI uses contexts when nesting components and that ma
 
 DearPyGui is still very young (version 1.0.3 at the time of this writting) and has a [few bugs, specially on older Linux distributions](https://github.com/hoffstadt/DearPyGui/issues), but looks very promising and is in very active development stage.
 
+
+So how the UI looks like?
+
+![](https://raw.githubusercontent.com/josevnz/rpm_query/main/rpmq_dearpygui.png)
 
 # What is next for you?
 
