@@ -461,7 +461,7 @@ So how the UI looks like?
 # What is next for you?
 
 1. You have many options in Python to make your scripts more user-friendly. Even simple actions like [using Argparse](https://www.digitalocean.com/community/tutorials/how-to-use-argparse-to-write-command-line-programs-in-python) will make a big impact in the way a script is used.
-2. Look for the official documentation, user groups. Also don't forget the good tutorials out there, for example [Rich](https://towardsdatascience.com/rich-generate-rich-and-beautiful-text-in-the-terminal-with-python-541f39abf32e, and [Tkinter](https://www.datacamp.com/community/tutorials/gui-tkinter-python) are mature alternatives to make your UI much better. Also [DearPyGUI](https://itnext.io/python-guis-with-dearpygui-137f4a3360f2) looks very promising.
+2. Look for the official documentation, user groups. Also don't forget the good tutorials out there, for example [Rich](https://towardsdatascience.com/rich-generate-rich-and-beautiful-text-in-the-terminal-with-python-541f39abf32e), and [Tkinter](https://www.datacamp.com/community/tutorials/gui-tkinter-python) are mature alternatives to make your UI much better. Also [DearPyGUI](https://itnext.io/python-guis-with-dearpygui-137f4a3360f2) looks very promising.
 3. Not everything needs a complex UI. But frameworks like Rich make it trivial to improve your programs by making exceptions and objects inspections more readable on your text only scripts.
 
 
