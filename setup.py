@@ -36,7 +36,7 @@ setup(
         "setuptools==49.1.3",
         "wheel==0.37.0",
         "rich==9.5.1",
-        "dearpygui==1.0.2"
+        "dearpygui==1.1"
     ],
     install_requires=[
         "rich==9.5.1",
