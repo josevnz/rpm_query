@@ -1,9 +1,11 @@
-# Unit testing, packaging an application that can query the RPM database with Python
+# Unit testing and packaging an application to query an RPM database with Python
 
-The RPM database can be queried from the command line and the 'rpm' command line tool support nice formatting. For example, to get the list of all the packages sorted by size you could do the following:
+When you install software on a Linux system, your package manager keeps track of what's installed, what it's dependent upon, what it provides, and much more.
+The usual way to look at that metadata is through your package manager.
+The RPM database, for example, can be queried from the command line with the `rpm` command, which supports some very nice formatting options. For example, to get a list of all packages sorted by size, you can do the following:
 
 ```shell=
-rpm -qa --queryformat "%{NAME}-%{VERSION} %{SIZE}\n"|sort -r -k 2 -n
+$ rpm -qa --queryformat "%{NAME}-%{VERSION} %{SIZE}\n"|sort -r -k 2 -n
 ...
 linux-firmware-20200421 256914779
 conda-4.8.4 228202733
@@ -16,63 +18,63 @@ docker-ce-19.03.12 106517368
 ansible-2.9.9 102477070
 ```
 
-But what if you want to format the numbers in the output? Or to be able to display the results with scrolling? rpm cli has many options but it may be complicated to add more Bash code to make tailor results to our needs.
+But what if you want to format the numbers in the output? Or to be able to display the results with scrolling? The `rpm` command has many options, but what if you need to integrate RPM output in other applications?
+And once you've written it, what about unit testing your code or distributing it to other machines?
 
-What about unit testing your code or distributing it to other machines?
+This is where other languages like Python shine. In this tutorial, I demonstrate how to:
 
-This is where other languages like Python shine. On this tutorial you will learn about the following:
+* Interact with the RPM database using Python
+* Create an interface to parse the command line using Argparse
+* Unit test your new code with unittest 
+* Package and test your code with the help of setuptools
 
-* How to interact with the RPM database using Python
-* Using a context manager, to auto-close resources and prevent 'leaking'
-* Create nice CLI to parse the command line using Argparse
-* How to unit test your ne code with unittest 
-* Package and test locally your code with the help of setuptools
+That's a lot to cover, so basic knowledge of Python is required. Also you should know what RPM is. But even if you don't know much, the code is simple to follow and the boilerplate code is small.
 
-It is quite a bit to cover and basic knowledge of python is required. Also you should know what RPM is. But even if you don't know much, the code is simple to follow and the boilerplate code is small.
+Python is a great default language for system administrators, and the RPM database [comes with bindings](http://ftp.rpm.org/api/4.4.2.2/group__python.html) that make it easy to query with Python.
 
-## Accessing RPM database from Python
+There are [several chapters](https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/RPM_Guide/ch-rpm-programming-python.html) dedicated to this in the Fedora documentation, but in this article you'll write a simple program that prints a list of RPM packages sorted by size.
 
-Python is the default language for system administrators, and the RPM database [comes with bindings](http://ftp.rpm.org/api/4.4.2.2/group__python.html) that make it easy to query from the scripting language.
+## Setup
 
-There a [several chapters](https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/RPM_Guide/ch-rpm-programming-python.html) dedicated to this on the Fedora documentation, I will show you how to use this feature with a simple program that prints the list of RPM packages, sorted by size.
-
-### Pre-requisites
-
-#### python3-rpm must be present
-
-First clone the code that we will use for this tutorial:
+First clone the code for this tutorial:
 
 ```shell=
 git clone git@github.com:josevnz/tutorials.git
 cd rpm_query
 ```
 
-RPM has deep ties with the system, that's maybe one of the reasons is not offered as a PIP. So you need an RPM with the bindings:
+For this tutorial to work, you must have the `python3-rpm` package installed.
+RPM has deep ties with the system, that's maybe one of the reasons it's not offered through the `pip` command and the PyPi module repository.
+You can install it instead with the `dnf` command:
 
 ```shell=
 sudo dnf install -y python3-rpm
 ```
 
-#### Virtual environment MUST include site packages
+## Virtual environment
 
-A [virtual environment](https://docs.python.org/3/tutorial/venv.html) is nothing more like a sandboxed location where you can install your python code and dependencies without disturbing the main distribution.
+Your Python virtual environment must include site packages.
+A [virtual environment](https://opensource.com/article/20/10/venv-python) is a sandboxed location where you can install Python code and dependencies without disturbing your main distribution.
 
-You can install the dependencies for this tutorial on a virtual environment. I strongly recomend ***AGAINST*** installing pip modules system wide as they **can destroy your system**. 
-Also, for this virtual environment to work you need to 'leak' the system packages inside your virtual environments, as the system package we need is python3-rpm and it doesn't come as a pip:
+You can install the dependencies for this tutorial in a virtual environment. I strongly recomend ***AGAINST*** installing thes modules system-wide, as they **can destroy your system**. 
+Also, for this virtual environment to work, you need to 'leak' the system packages inside your virtual environments, as the system package you need is python3-rpm and it's not available through `pip`.
+You can provide access to site packages using the `--system-site-packages` option:
 
 ```shell=
 python3 -m venv --system-site-packages ~/virtualenv/rpm_query
 . ~/virtualenv/rpm_query/bin/activate
 ```
 
-### Our first CLI to query RPM, with sorting
+## Query RPM with sorting
 
-I wrapped the rpm instance in a '[context manager](https://docs.python.org/3/library/contextlib.html)', to make it easier to use and also to avoid worring about closing the RPM database. Also I'll take a few shortcuts to return the result of the database query.
+In this example application, I wrap the RPM instance in a '[context manager](https://docs.python.org/3/library/contextlib.html)'.
+This makes it easier to use, and also saves you from worrying about closing the RPM database. Also, I'll take a few shortcuts to return the result of the database query.
 
 A few things to notice:
-* [The code](https://github.com/josevnz/rpm_query/blob/main/reporter/rpm_query.py) that imports the rpm is on a try - except because it is possible than the RPM is not installed. So if we fail, we do it gracefully explaining that it needs to be installed
-* Depending if we want the results sorted by size or not, a reference to the right code in ```__get__``` is passed.
-* The customization magic happens on the constructor, with named parameters. After that the code returns the database transaction on the ``` __enter__``` method when you use it with an 'with' (will show that in a how a [context manage works](https://docs.python.org/3/library/contextlib.html))
+
+* [The code](https://github.com/josevnz/rpm_query/blob/main/reporter/rpm_query.py) that imports the RPM is in a try/except clause because it is possible that the RPM is not installed. So if it fails, it does so gracefully, explaining that it needs to be installed.
+* Depending on whether the user wants the results sorted by size or not, a reference to the code in the ``__get__`` function is passed.
+* The customization magic happens in the constructor, with named parameters. After that, the code returns database transactions in the ``` __enter__``` method.
 
 ```python=
 """
@@ -143,18 +145,20 @@ class QueryHelper:
 ```
 
 # Unit testing with unittest
-**How good is this code without testing**? 
 
-You [definitely want to automate the testing of your code](https://www.freecodecamp.org/news/an-introduction-to-testing-in-python/). [Unit testing is different](https://stackabuse.com/unit-testing-in-python-with-unittest/) than other types of testing. Overall, it will make your application more robust because by making sure the smallest components of your application behave correctly.
+*How good is this code without testing*? 
 
-In this case unit test is nothing more than a class that exercises functionality of our rpm wrapper class, running several small methods that test for very specific contions. In the case of unittest they follow certain conventions so the framework can call our test cases one by one.
+You definitely want to automate the testing of your code. Unit testing is different than other types of testing. Overall, it makes your application more robust because it ensures the smallest components of your application behave correctly.
+
+In this case, unit test is nothing more than a class that exercises functionality of the RPM wrapper class, running several small methods that test for very specific conditions. In the case of `unittest`, they follow certain conventions so the framework can call each test case one by one.
 
 I wrote a [unit test](https://github.com/josevnz/rpm_query/blob/main/tests/test_rpm_query.py) for the `reporter.rpm_query.QueryHelper` class. The code has several assertions that must be true in order to pass the each test case.
 
 ```python=
 """
 Unit tests for the QueryHelper class
-Please read how to write unit tests: https://docs.python.org/3/library/unittest.html
+Please read how to write unit tests: 
+https://docs.python.org/3/library/unittest.html
 """
 import os
 import unittest
@@ -162,9 +166,7 @@ from reporter.rpm_query import QueryHelper
 
 DEBUG = True if os.getenv("DEBUG_RPM_QUERY") else False
 
-
 class QueryHelperTestCase(unittest.TestCase):
-
     def test_get_unsorted_counted_packages(self):
         """
         Test retrival or unsorted counted packages
@@ -219,14 +221,14 @@ if __name__ == '__main__':
     unittest.main()
 ```
 
-I strongly recommend you read [official unittest documentation](https://docs.python.org/3/library/unittest.html) for more details, as there is so much more unit testing than this simple code, like [mock testing](https://docs.python.org/3/library/unittest.mock.html) (useful for more complex dependency scenarios)
+I strongly recommend you read [official unittest documentation](https://docs.python.org/3/library/unittest.html) for more details, as there's so much more unit testing than this simple code, like [mock testing](https://docs.python.org/3/library/unittest.mock.html), which is particularly useful for complex dependency scenarios.
 
 
-# Using QueryHelper wrapper class, parse command line arguments with Argparse
+# QueryHelper and Argparse
 
-And then using this class to query the RPM database becomes very easy. A few things to note with the code below:
+You can use the `QueryHelper` wrapper class and parse command-line arguments with Argparse. Using this class to query the RPM database becomes very easy. A few things to note with the code below:
 
-* With [argparse](https://docs.python.org/3/library/argparse.html) we can have complete control of command line options, with help and default values. Doing this from Bash requires more glue code and is still not as complete as the python code (take a look how the limit is validated with ```__is_valid_limit__``` function imported from the file [reporter/__init__.py](https://github.com/josevnz/rpm_query/blob/main/reporter/__init__.py)
+* With [argparse](https://docs.python.org/3/library/argparse.html), we can have complete control of command-line options, complete with a help message and default values.
 
 ```python=
 #!/usr/bin/env python
@@ -276,16 +278,16 @@ if __name__ == "__main__":
             current += 1
 ```
 
-You can install our new application in something called  'development mode'. What that means is that a symbolic link is created to our sandbox, which will allow us to make changes and still test the application:
+You can install your new application in something called 'development mode'. What that means is that a symbolic link is created to your sandbox, which allow you to make changes and still test the application:
 
 ```shell
-(rpm_query) [josevnz@dmaf5 rpm_query]$ python setup.py develop
+(rpm_query)$ python setup.py develop
 ```
 
-So how does the output look now? Let's ask for all the RPMS, sorted and with a limit of the first 20 entries:
+So how does the output look now? Try asking for all the RPMs you have installed, sorted, and limited to the first 20 entries:
 
 ```shell=
-(rpm_query) [josevnz@dmaf5 rpm_query]$ rpmqa_simple.py --limit 20 
+(rpm_query)$ rpmqa_simple.py --limit 20
 linux-firmware-20210818: 395,099,476
 code-1.61.2: 303,882,220
 brave-browser-1.31.87: 293,857,731
@@ -308,7 +310,7 @@ cldr-emoji-annotation-38: 80,832,870
 kernel-core-5.14.12: 79,447,964
 ```
 
-By the way, once you are done testing you can remove the development mode:
+By the way, once you are done testing you can remove development mode:
 
 ```shell
 python setup.py develop --uninstall
@@ -316,13 +318,13 @@ python setup.py develop --uninstall
 
 # Packaging and installing the distribution
 
-Now that you are ready to deploy your application, you can package it, copy its wheel file and then install it on a new virtual environment. But first you need to define a very important file: setup.py, which [is used by setuptools](https://setuptools.pypa.io/en/latest/userguide/quickstart.html).
+Now that you're ready to deploy your application, you can package it, copy its wheel file, and then install it in a new virtual environment. But first, you need to define a very important file: `setup.py`, which is used by [setuptools](https://opensource.com/article/21/11/packaging-python-setuptools).
 
-The most important sections in the file below:
+The most important sections in the file below are:
 
 * *_requires sections: build and installation dependencies
-* packages: Where are your Python classes
-* scripts: Which scripts the end user will call to interact with your libraries (if any).
+* packages: the location of your Python classes
+* scripts: these are the scripts that the end user calls to interact with your libraries (if any)
 
 ```python=
 """
@@ -374,37 +376,42 @@ setup(
 )
 ```
 
-The official documentation recommends migrating from the setup.py configuration to setup.cfg. I decided to use the well known setup.py as I'm not very familiar with the new way of doing things.
+The official documentation recommends migrating from a `setup.py` configuration to `setup.cfg`, but I decided to use `setup.py` because it's what I'm familiar with.
 
 
 ```shell
-(rpm_query) [josevnz@dmaf5 rpm_query]$ python setup.py bdist_wheel
+(rpm_query)$ python setup.py bdist_wheel
 running bdist_wheel
 ...
 ```
 
-Then you can install it on the the same machine or a new machine, on a virtual environment:
+Then you can install it on the the same machine or a new machine, in a virtual environment:
 
 ```shell
-(rpm_query) [josevnz@dmaf5 rpm_query]$ python setup.py install dist/rpm_query-1.0.0-py3-none-any.whl
+(rpm_query)$ python setup.py install \
+dist/rpm_query-1.0.0-py3-none-any.whl
 ```
 
-## What about uploading your application to a artifact repository?
+## Uploading your application to a repository
 
-The right way to share your code is to upload your distribution to an artifact manager like Sonatype Nexus. For that you can use a tool like [twine](https://twine.readthedocs.io/en/latest/).
+The most common way to share Python code is to upload it to an artifact manager like Sonatype Nexus. For that, you can use a tool like [twine](https://twine.readthedocs.io/en/latest/).
 
 ```shell=
-(rpm_query) [josevnz@dmaf5 rpm_query]$ pip install twine
+(rpm_query)$ pip install twine
 # Configure twine to upload to a repository without prompting a password, etc, by editing ~/.pypirc
 ...
-(rpm_query) [josevnz@dmaf5 rpm_query]$ python upload --repository myprivaterepo dist/rpm_query-1.0.0-py3-none-any.whl
+(rpm_query)$ python upload --repository myprivaterepo \
+dist/rpm_query-1.0.0-py3-none-any.whl
 ```
 
-Setting this up is a whole lenghty topic by itself, which we will not cover on this tutorial.
+Setting this up is a lengthy topic by itself, which is out of scope for this article.
 
-# So what did you learn so far
-* Write unit tests. There are [best practices](https://dzone.com/articles/unit-testing-best-practices-how-to-get-the-most-ou) you should follow.
-* Package your application with [setuptools](https://setuptools.pypa.io/en/latest/index.html) (or the framework of your choice). Make installations and testing repeatable.
-* Learn how to use [Argparse](https://docs.python.org/3/library/argparse.html). Your users and your future self will thank you if you provide an easy to use CLI.
-* Simplify your resource management [with a context manager](https://stackabuse.com/python-context-managers/).
-* Finally get more famliar with the RPM API. [We barely scratched the surface](https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/RPM_Guide/ch-rpm-programming-python.html) of the things you can do with it.
+# What you've learned
+
+This has been a lot of information, and here's a reminder of what I covered:
+
+* Write unit tests.
+* Package your application with [setuptools](https://setuptools.pypa.io/en/latest/index.html) or a framework of your choice. Make installations and testing repeatable.
+* Learn how to use [Argparse](https://opensource.com/article/21/7/argument-parsing-python-argparse). Your users and your future self will thank you if you provide an easy to use CLI!
+
+Finally, get more famliar with the RPM API. [This article barely scratches the surface](https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/RPM_Guide/ch-rpm-programming-python.html) of all the things you can do with it!
