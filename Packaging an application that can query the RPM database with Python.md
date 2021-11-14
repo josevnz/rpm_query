@@ -178,8 +178,8 @@ What if you want to share your PIP with other users? You could copy the wheel fi
 
 # Setting up a private Pypi server
 
-*Note:* This setup is not production quality because:
-* Is not secure as it uses passwords instead of authentication tokens. 
+*Note:* This setup _is not production quality_ because:
+* Is not secure as it uses passwords instead of tokens for authentication. 
 * No SSL encryption. HTTP means clear text password going over the wire. 
 * No storage redundancy. Ideally your storage PIP storage should have some sort of redundancy, backups.
 
