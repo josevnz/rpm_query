@@ -65,7 +65,7 @@ How these 3 tools solve the RPM limitations mentioned earlier?:
 * [Virtual environment](https://docs.python.org/3/library/venv.html) will allow you to install applications without having elevated permissions
 * The application is self-contained to the virtual environment, you can install different versions of the libraries without affecting the whole system
 * It is very easy to integrate a virtual environment with continuous integration and unit testing. After the tests pass, the environment can be recycled
-* [setuptools](https://packaging.python.org/tutorials/installing-packages/) solves the problem of packaging your application in a nice directory structure, and making your scripts and libraries vailable to users.
+* [setuptools](https://packaging.python.org/tutorials/installing-packages/) solves the problem of packaging your application in a nice directory structure, and making your scripts and libraries available to users.
 * setuptools also deals with the issue of keeping track of your dependencies with proper version check, to make the build process repeatable.
 * setuptools works with [pip](https://pip.pypa.io/en/stable/), the Python package manager
 * Best part is that both virtual environments and setuptools have excellent support in IDE like Pycharm or VSCode.
@@ -145,7 +145,7 @@ You don't need to package and deploy your application in full mode. setuptools h
 (rpm_query)$ python setup.py develop
 ```
 
-This will create special symbolic links that will put your scripts (remember that section in setup.py?) into your path.
+This will create special symbolic links that will put your scripts (remember that section inside setup.py?) into your path.
 
 By the way, once you are done testing you can remove development mode:
 
