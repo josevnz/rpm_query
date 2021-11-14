@@ -199,11 +199,10 @@ I wrote a [unit test](https://github.com/josevnz/rpm_query/blob/main/tests/test_
 * The code has several assertions that must be true in order to pass the each test case.
 * I do not use Mock objects because the RPM framework is so ingrained into Fedora/ RedHat it is guaranteed the real database will be there. Also the tests are non-destructive.
 
-```python=
+```python
 """
 Unit tests for the QueryHelper class
-Please read how to write unit tests: 
-https://docs.python.org/3/library/unittest.html
+How to write unit tests: https://docs.python.org/3/library/unittest.html
 """
 import os
 import unittest
@@ -211,10 +210,17 @@ from reporter.rpm_query import QueryHelper
 
 DEBUG = True if os.getenv("DEBUG_RPM_QUERY") else False
 
+
 class QueryHelperTestCase(unittest.TestCase):
+
+    def test_default(self):
+        with QueryHelper() as rpmquery:
+            for package in rpmquery:
+                self.assertIn('name', package, "Could not get 'name' in package?")
+
     def test_get_unsorted_counted_packages(self):
         """
-        Test retrival or unsorted counted packages
+        Test retrieval or unsorted counted packages
         :return:
         """
         LIMIT = 10
@@ -290,7 +296,7 @@ def __is_valid_limit__(limit: str) -> int:
 
 Using this class to query the RPM database becomes very easy by parsing the options and then calling ```QueryHelper```:
 
-```python=
+```python
 #!/usr/bin/env python
 """
 # rpmq_simple.py - A simple CLI to query the sizes of RPM on your system
@@ -340,7 +346,7 @@ if __name__ == "__main__":
 
 So how does the output look now? Let's ask for all the RPMs you have installed, sorted, and limited to the first 20 entries:
 
-```shell=
+```shell
 (rpm_query)$ rpmqa_simple.py --limit 20
 linux-firmware-20210818: 395,099,476
 code-1.61.2: 303,882,220
