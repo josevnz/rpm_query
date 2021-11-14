@@ -1,4 +1,4 @@
-# Writting and unit testing an application to query an RPM database with Python
+# Writting and unit testing an application to query the RPM database with Python
 
 When you install software on a Linux system, your package manager keeps track of what's installed, what it's dependent upon, what it provides, and much more.
 The usual way to look at that metadata is through your package manager. In the case of Fedora or RedHat it is the [RPM database.](https://rpm.org/)
