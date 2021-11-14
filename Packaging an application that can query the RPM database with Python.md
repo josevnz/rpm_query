@@ -137,6 +137,33 @@ with other parts of the application, not just setuptools. Also used a [semantic 
 * You can define packaging dependencies (setup_requires) and runtime dependencies (install_requires)
 * I need the wheel package as I want to create a '[pre-compiled](https://packaging.python.org/glossary/#term-Wheel)' distribution that is faster to install than other modes.
 
+### Quick check before uploading
+Before you upload the wheel, you should ask twine to check your settings for errors like this:
+```shell
+(rpm_query) [josevnz@dmaf5 rpm_query]$ twine check dist/rpm_query-0.0.1-py3-none-any.whl 
+Checking dist/rpm_query-0.0.1-py3-none-any.whl: FAILED
+  `long_description` has syntax errors in markup and would not be rendered on PyPI.
+    line 20: Warning: Bullet list ends without a blank line; unexpected unindent.
+  warning: `long_description_content_type` missing. defaulting to `text/x-rst`.
+```
+The markdown is correct on the file, one way to fix this issue is to install the following:
+```shell
+pip install readme_renderer[md]
+```
+
+Also, the 'long_description_content_type' section is there:
+```python
+    long_description_content_type="text/markdown",
+    long_description=__read__('README.md'),
+```
+When you run it again after making the changes above you will still see the warning:
+```shell
+rpm_query) [josevnz@dmaf5 rpm_query]$ twine check dist/rpm_query-0.0.1-py3-none-any.whl 
+Checking dist/rpm_query-0.0.1-py3-none-any.whl: PASSED, with warnings
+  warning: `long_description_content_type` missing. defaulting to `text/x-rst`.
+```
+No serious errors, one false alarm. You are ready to upload your wheel.
+
 ## How to deploy while you are testing
 
 You don't need to package and deploy your application in full mode. setuptools has a very convenient mode that will install dependencies and will let you keep editing your code while testing, called the 'develop' mode:
@@ -153,7 +180,7 @@ By the way, once you are done testing you can remove development mode:
 (rpm_query)$ python setup.py develop --uninstall
 ```
 
-The official documentation recommends migrating from a `setup.py` configuration to `setup.cfg`, but I decided to use `setup.py` because it's what I'm familiar with.
+The official documentation recommends migrating from a `setup.py` configuration to `setup.cfg`, but I decided to use `setup.py` because it is still the most popular format.
 
 ## Creating a pre-compiled distribution
 
@@ -168,7 +195,6 @@ rpm_query-0.0.1-py3-none-any.whl
 ```
 
 Then you can install it on the same machine or a new machine, in a virtual environment:
-
 ```shell
 (rpm_query)$ python setup.py install \
 dist/rpm_query-1.0.0-py3-none-any.whl
@@ -251,12 +277,11 @@ repository = http://localhost:8080/
 username = josevnz
 ```
 
-If you use Fedora, you should not put the 'password = XXXX' inside the file. Let twine ask for it instead for the time being. 
+You should not put the 'password = XXXX' inside the file. Let twine ask for it instead for the time being. Also make the configuration accesible only to the owner:
 
 ```shell
 chmod 600 ~/.pypirc
 ```
-
 Finally, we upload the wheel using twine:
 
 ```shell
@@ -264,11 +289,6 @@ Finally, we upload the wheel using twine:
 Uploading distributions to http://localhost:8080/
 Uploading rpm_query-0.0.1-py3-none-any.whl
 100%|██████████████████████████████████
-```
-
-Or using setuptools directly
-```shell
-(rpm_query) python setup.py sdist upload -r privatepypi
 ```
 
 Confirm it was installed (```lynx http://localhost:8080/packages/```):

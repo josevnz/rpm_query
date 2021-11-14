@@ -15,6 +15,8 @@ setup(
     name="rpm_query",
     version=__version__,
     author="Jose Vicente Nunez Zuleta",
+    long_description_content_type="text/markdown",
+    long_description=__read__('README.md'),
     author_email="kodegeek.com@protonmail.com",
     description=__doc__,
     license="Apache",
@@ -23,8 +25,6 @@ setup(
     packages=[
         'reporter'
     ],
-    long_description=__read__('README.md'),
-    long_description_content_type="text/markup",
     # https://pypi.org/pypi?%3Aaction=list_classifiers
     classifiers=[
         "Development Status :: 3 - Alpha",
