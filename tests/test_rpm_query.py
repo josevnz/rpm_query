@@ -11,9 +11,14 @@ DEBUG = True if os.getenv("DEBUG_RPM_QUERY") else False
 
 class QueryHelperTestCase(unittest.TestCase):
 
+    def test_default(self):
+        with QueryHelper() as rpmquery:
+            for package in rpmquery:
+                self.assertIn('name', package, "Could not get 'name' in package?")
+
     def test_get_unsorted_counted_packages(self):
         """
-        Test retrival or unsorted counted packages
+        Test retrieval or unsorted counted packages
         :return:
         """
         LIMIT = 10

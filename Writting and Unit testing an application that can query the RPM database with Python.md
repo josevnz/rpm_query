@@ -84,9 +84,17 @@ Putting all this functionality into a class (a collection of data and methods) t
 Let me show you first how QueryHelper class can used to get a list of a max 5 packages, sorted by size:
 
 ```python
-package_name = ""
-sort_res = True
-with QueryHelper(package_name, 5, sort_res)) as rpm_query:
+with QueryHelper(name="", limit=5, sorted_val=True)) as rpm_query:
+    for package in rpm_query:
+        print(f"{package['name']}-{package['version']}: {package['size']:,.0f}")
+```
+
+I used a Python feature called ['named arguments'](https://trstringer.com/python-named-arguments/), which makes using the class much easier.
+
+What if you are happy with the default arguments? Not a problem:
+
+```python
+with QueryHelper() as rpm_query:
     for package in rpm_query:
         print(f"{package['name']}-{package['version']}: {package['size']:,.0f}")
 ```
