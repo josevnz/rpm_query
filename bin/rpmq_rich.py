@@ -43,12 +43,8 @@ if __name__ == "__main__":
         rpm_table.add_column("Size (bytes)", justify="right", style="green")
         with Progress(transient=True) as progress:
             querying_task = progress.add_task("[red]RPM query...", start=False)
-            current = 0
             for package in rpm_query:
-                if current >= args.limit:
-                    break
                 rpm_table.add_row(f"{package['name']}-{package['version']}", f"{package['size']:,.0f}")
                 progress.console.print(f"[yellow]Processed package: [green]{package['name']}-{package['version']}")
-                current += 1
             progress.update(querying_task, advance=100.0)
             progress.console.print(rpm_table)

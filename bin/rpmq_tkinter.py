@@ -27,8 +27,6 @@ def __initial__search__(*, window: Tk, name: str, limit: int, sort: bool, table:
     with QueryHelper(name=name, limit=limit, sorted_val=sort) as rpm_query:
         row_id = 0
         for package in rpm_query:
-            if row_id >= limit:
-                break
             package_name = f"{package['name']}-{package['version']}"
             package_size = f"{package['size']:,.0f}"
             table.insert(

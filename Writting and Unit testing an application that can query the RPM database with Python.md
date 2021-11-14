@@ -23,11 +23,12 @@ And once you've written it, what about unit testing your code script? Bash is no
 
 Instead this is where other languages like Python shine. In this tutorial, I demonstrate how to:
 
-* Interact with the RPM database using Python using Python classes.
-* Create an easy to use interface to parse the command line using Argparse to make the end program easier to use.
+* Interact with the RPM database using Python RPM bindings.
+* Will write my own [Python class](https://docs.python.org/3/tutorial/classes.html) to create a wrapper around the provided RPM bindings, but even if you don't know much about object oriented programming it should be easy to grasp (will keep advanced features out like virtual classes, data classes and other features).
+* Make the script easier to use and customize by calling Argparse methods to parse the command line interface.
 * Unit test your new code with unittest
 
-That's a lot to cover, so basic knowledge of Python is required. Also you should know what RPM is. But even if you don't know much, the code is simple to follow and the boilerplate code is small.
+That's a lot to cover, so basic knowledge of Python is required (for example [OO programming](https://www.datacamp.com/community/tutorials/python-oop-tutorial)). Also you should know what [RPM database.](https://rpm.org/) is. But even if you don't know much, the code is simple to follow and the boilerplate code is small.
 
 There are [several chapters](https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/RPM_Guide/ch-rpm-programming-python.html) dedicated on how to interact with RPM the Fedora documentation, but in this article you'll write a simple program that prints a list of RPM packages sorted by size.
 
@@ -52,7 +53,7 @@ git clone git@github.com:josevnz/tutorials.git
 cd rpm_query
 ```
 
-# Virtual environment
+## Virtual environment
 
 Python has a feature called '[virtual environments](https://opensource.com/article/20/10/venv-python)'. A virtual environment provides you a sandboxed location where:
 
@@ -71,12 +72,26 @@ python3 -m venv --system-site-packages ~/virtualenv/rpm_query
 . ~/virtualenv/rpm_query/bin/activate
 ```
 
-# Query RPM (optionally limiting number of results and sorting)
+# Coding the Query RPM class (optionally limiting number of results and sorting)
 
 In this example application, I'll wrap the RPM instance in a '[context manager](https://docs.python.org/3/library/contextlib.html)'.
 This makes it easier to use, and also saves you from worrying about manually closing the RPM database. Also, I'll take a few shortcuts to return the result of the database query.
 
-A few things to notice:
+Putting all this functionality into a class (a collection of data and methods) together is what makes object orientation so useful; in our case the RPM functionality is on a class called ```QueryHelper``` and its sole purpouse is:
+* Define filtering parameters like number of items and sorting results at creation time (we use a class constructor for that)
+* To provide a way to iterate through every package of the system
+
+Let me show you first how QueryHelper class can used to get a list of a max 5 packages, sorted by size:
+
+```python
+package_name = ""
+sort_res = True
+with QueryHelper(package_name, 5, sort_res)) as rpm_query:
+    for package in rpm_query:
+        print(f"{package['name']}-{package['version']}: {package['size']:,.0f}")
+```
+
+Now we can see how it was implemented:
 
 * [The code](https://github.com/josevnz/rpm_query/blob/main/reporter/rpm_query.py) that imports the RPM is in a try/except clause because it is possible that the RPM is not installed. So if it fails, it does so gracefully, explaining that rpm needs to be installed.
 * The `__get__` function takes care of return the results sorted or 'as-is'. We pass a reference to this function to the code that queries the database
@@ -88,6 +103,8 @@ A few things to notice:
 Wrapper around RPM database
 """
 import sys
+from typing import Any
+
 try:
     import rpm
 except ModuleNotFoundError:
@@ -99,7 +116,14 @@ except ModuleNotFoundError:
     raise
 
 
-def __get__(is_sorted: bool, dbMatch):
+def __get__(is_sorted: bool, dbMatch: Any) -> Any:
+    """
+    If is_sorted is true then sort the results by item size in bytes, otherwise
+    return 'as-is'
+    :param is_sorted:
+    :param dbMatch:
+    :return:
+    """
     if is_sorted:
         return sorted(
             dbMatch,
@@ -108,17 +132,15 @@ def __get__(is_sorted: bool, dbMatch):
 
 
 class QueryHelper:
+    MAX_NUMBER_OF_RESULTS = 10_000
 
-    UNLIMITED = -1
-
-    def __init__(self, *, limit: int = UNLIMITED, name: str = None, sorted_val: bool = True):
+    def __init__(self, *, limit: int = MAX_NUMBER_OF_RESULTS, name: str = None, sorted_val: bool = True):
         """
-        We use named arguments on the constructor
         :param limit: How many results to return
         :param name: Filter by package name, if any
         :param sorted_val: Sort results
         """
-        self.ts = rpm.TransactionSet()  # Everything in RPM starts with a transaction
+        self.ts = rpm.TransactionSet()
         self.name = name
         self.limit = limit
         self.sorted = sorted_val
@@ -129,32 +151,26 @@ class QueryHelper:
         :return:
         """
         if self.name:
-            db = self.db = self.ts.dbMatch("name", self.name)  # Find a specific package
+            db = self.db = self.ts.dbMatch("name", self.name)
         else:
-            db = self.db = self.ts.dbMatch()  # Or find them all
+            db = self.db = self.ts.dbMatch()
         count = 0
-        for package in __get__(self.sorted, db):  # Reference to a function to get a sorted or 'as-is' results
-            if self.limit != self.UNLIMITED:
-                if count < self.limit:
-                    count += 1
-                else:
-                    break
-            yield package  # Return a value to the caller as soon as we get it
+        for package in __get__(self.sorted, db):
+            if count >= self.limit:
+                break
+            yield package
+            count += 1
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.ts.closeDB()
-
-    def count(self):
-        """
-        How many results were found
-        :return:
-        """
-        return self.db.count()
 ```
 
-Keeping the search logic in a separate module and classes will allow us to:
-* Reuse this code on  just CLI application but also GUI, REST services
-* Test it automatically with [continuous integration](https://martinfowler.com/articles/continuousIntegration.html), allowing us to find code issues automatically.
+A few things to notice:
+
+* We can reuse this search logic not just on our CLI application but also on future GUI, REST services because functionality lives on a well defined unit (data + actions)
+* Did you saw how I 'hinted' the interpreter about the types of the arguments in the constructor (like limit: int is an integer)? This helps IDE like Pycharm a lot, so they can provide auto-completion for you and your users. Python doesn't require it but ***it is as good practice***.
+* Some times is good to provide default values to your parameters. That can make your class easier to use if the developer decides not to override the defaults (makes your argument 'optional').
+* It is also a good practice to document your methods, even briefly. IDE can show you this detail when you are using the methods,
 
 Will cover unit testing next.
 
@@ -162,7 +178,7 @@ Will cover unit testing next.
 
 *How good is this code without testing*? 
 
-You definitely want to automate the testing of your code. Unit testing is different than other types of testing. Overall, it makes your application more robust because it ensures the smallest components of your application behave correctly.
+You definitely want to automate the testing of your code. Unit testing is different than other types of testing. Overall, it makes your application more robust because it ensures the smallest components of your application behave correctly (and it works better if you [do it after every change](https://martinfowler.com/articles/continuousIntegration.html) in your code)
 
 In this case, python [unittest](https://docs.python.org/3/library/unittest.html) is nothing more than a class automates proving if a function behaves correctly.
 

@@ -37,10 +37,6 @@ if __name__ == "__main__":
         limit=args.limit,
         sorted_val=args.sort
     ) as rpm_query:
-        current = 0
         for package in rpm_query:
-            if current >= args.limit:
-                break
             print(f"{package['name']}-{package['version']}: {package['size']:,.0f}")
-            current += 1
 

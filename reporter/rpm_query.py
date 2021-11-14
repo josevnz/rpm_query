@@ -17,7 +17,8 @@ except ModuleNotFoundError:
 
 def __get__(is_sorted: bool, dbMatch: Any) -> Any:
     """
-    Get the package results and the total number of results found
+    If is_sorted is true then sort the results by item size in bytes, otherwise
+    return 'as-is'
     :param is_sorted:
     :param dbMatch:
     :return:
@@ -53,13 +54,11 @@ class QueryHelper:
         else:
             db = self.db = self.ts.dbMatch()
         count = 0
-        limit = max(self.limit, self.MAX_NUMBER_OF_RESULTS)
         for package in __get__(self.sorted, db):
-            if count < limit:
-                count += 1
-            else:
+            if count >= self.limit:
                 break
             yield package
+            count += 1
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.ts.closeDB()

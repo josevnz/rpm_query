@@ -71,14 +71,10 @@ def __run_initial_query__(
                 limit=limit,
                 sorted_val=sorted_elem
         ) as rpm_query:
-            current = 0
             for package in rpm_query:
-                if current >= args.limit:
-                    break
                 with dpg.table_row(parent=TABLE_TAG):
                     dpg.add_text(f"{package['name']}-{package['version']}")
                     dpg.add_text(f"{package['size']:,.0f}")
-                current += 1
 
 
 def __run__query__() -> None:
