@@ -12,7 +12,7 @@ A good system administrator you should definitely know how to make more user-fri
 
 If you want to follow this short tutorial, you should do the following
 
-```shell=
+```shell
 sudo dnf install -y python3-rpm
 git clone git@github.com:josevnz/tutorials.git
 cd rpm_query
@@ -29,7 +29,7 @@ Our application it is not too complex, it should be able to do the following
 
 * Show nicely the following output:
 
-```shell=
+```shell
 (rpm_query) [josevnz@dmaf5 rpm_query]$ rpmq_simple.py --limit 10
 linux-firmware-20210818: 395,099,476
 code-1.61.2: 303,882,220
@@ -51,14 +51,14 @@ iwl7260-firmware-25.30.13.0: 148,167,043
 
 ## Installing rich
 
-```shell=
+```shell
 [josevnz@dmaf5 rpm_query]$ pip install rich
 ```
 
 ## rpmq script, rich version
 Don't get fooled, below is the code of my python script with a progress bar and results on a **really** nice table:
 
-```python=
+```python
 #!/usr/bin/env python
 """
 # rpmq_rich.py - A simple CLI to query the sizes of RPM on your system
@@ -136,7 +136,7 @@ Few things to notice:
 
 So how the code looks now?
 
-```python=
+```python
 #!/usr/bin/env python
 """
 # rpmq_tkinter.py - A simple CLI to query the sizes of RPM on your system
@@ -312,13 +312,13 @@ Also means you can re-do your queries once the script starts by tweaking the par
 
 If you have a recent system (like Fedora 33, Windows 10 Pro) then installation should be easy enough 
 
-```shell=
+```shell
 [josevnz@dmaf5 rpm_query]$ pip install dearpygui
 ```
 
 So let's take a look how the re-write of the application looks like:
 
-```python=
+```python
 #!/usr/bin/env python
 """
 # rpmq_dearpygui.py - A simple CLI to query the sizes of RPM on your system
