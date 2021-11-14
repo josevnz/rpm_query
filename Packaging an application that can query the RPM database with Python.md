@@ -346,7 +346,7 @@ Successfully installed colorama-0.4.4 commonmark-0.9.1 pygments-2.10.0 rich-9.5.
 
 This has been a lot of information, and here's a reminder of what I covered:
 
-* Package your application with [setuptools](https://setuptools.pypa.io/en/latest/index.html) or a framework of your choice. Make installations and testing repeatable.
-* Install a private Pypi server using a Docker container
-* Upload the generated wheel package to the private repository
-* Install the wheel from the private repository instead of a file
+* Package your application with [setuptools](https://setuptools.pypa.io/en/latest/index.html)
+* Run a private [Pypi server using a Docker container](https://pypi.org/project/pypiserver)
+* Upload the generated wheel package to the private repository using [twine](https://twine.readthedocs.io/en/latest/)
+* Install the wheel from the private repository instead of a file using [pip](https://pip.pypa.io/en/stable/cli/pip_install/)
