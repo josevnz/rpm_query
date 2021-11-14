@@ -52,3 +52,10 @@ running bdist_wheel
 (rpm_query) [josevnz@dmaf5 rpm_query]$ python setup.py install dist/rpm_query-0.0.1-py3-none-any.whl
 ```
 
+# Tutorial
+
+Of course there is a 3 part tutorial that explains how and why this code was written. In order:
+
+* [Writting and unit testing an application to query the RPM database with Python](https://github.com/josevnz/rpm_query/blob/main/Writting%20and%20Unit%20testing%20an%20application%20that%20can%20query%20the%20RPM%20database%20with%20Python.md#writting-and-unit-testing-an-application-to-query-the-rpm-database-with-python)
+* [Packaging an application to query an RPM database with Python](https://github.com/josevnz/rpm_query/blob/main/Packaging%20an%20application%20that%20can%20query%20the%20RPM%20database%20with%20Python.md)
+* [Writting UI applications in Python](https://github.com/josevnz/rpm_query/blob/main/Writting%20UI%20applications%20in%20Python.md)

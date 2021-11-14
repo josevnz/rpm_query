@@ -32,11 +32,11 @@ That's a lot to cover, so basic knowledge of Python is required. But even if you
 
 I assume you already know what 
 
-## Setup
+# Setup
 
-I explained how to install this code on a previous tutorial and the usage of [virtual environment](https://opensource.com/article/20/10/venv-python), but you can take a shortcut and just to this
+I explained how to install this code on a [previous tutorial](https://github.com/josevnz/rpm_query/blob/main/Writting%20and%20Unit%20testing%20an%20application%20that%20can%20query%20the%20RPM%20database%20with%20Python.md) and the usage of [virtual environment](https://opensource.com/article/20/10/venv-python), but you can take a shortcut and just to this:
 
-```shell=
+```shell
 sudo dnf install -y python3-rpm
 git clone git@github.com:josevnz/tutorials.git
 cd rpm_query
@@ -44,7 +44,7 @@ python3 -m venv --system-site-packages ~/virtualenv/rpm_query
 . ~/virtualenv/rpm_query/bin/activate
 ```
 
-## Packaging and installing the distribution
+# Packaging and installing the distribution
 
 Now that you're ready to deploy your application, you can package it, copy its wheel file, and then install it in a new virtual environment. But first, you need to define a very important file: `setup.py`, which is used by [setuptools](https://opensource.com/article/21/11/packaging-python-setuptools).
 
@@ -54,7 +54,7 @@ The most important sections in the file below are:
 * packages: the location of your Python classes
 * scripts: these are the scripts that the end user calls to interact with your libraries (if any)
 
-```python=
+```python
 """
 Project packaging and deployment
 More details: https://setuptools.pypa.io/en/latest/userguide/quickstart.html
@@ -136,11 +136,11 @@ By the way, once you are done testing you can remove development mode:
 python setup.py develop --uninstall
 ```
 
-## Uploading your application to a repository
+# Uploading your application to a repository
 
 The most common way to share Python code is to upload it to an artifact manager like Sonatype Nexus. For that, you can use a tool like [twine](https://twine.readthedocs.io/en/latest/).
 
-```shell=
+```shell
 (rpm_query)$ pip install twine
 # Configure twine to upload to a repository without prompting a password, etc, by editing ~/.pypirc
 ...
