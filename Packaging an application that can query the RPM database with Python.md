@@ -32,7 +32,7 @@ That's a lot to cover, so basic knowledge of Python is required. Even if you don
 
 # Setup
 
-I explained how to install this code on a [previous tutorial](https://github.com/josevnz/rpm_query/blob/main/Writting%20and%20Unit%20testing%20an%20application%20that%20can%20query%20the%20RPM%20database%20with%20Python.md) and the usage of [virtual environment](https://opensource.com/article/20/10/venv-python), but you can take a shortcut and just to this:
+I explained how to install this code on a [previous tutorial](https://github.com/josevnz/rpm_query/blob/main/Writting%20and%20Unit%20testing%20an%20application%20that%20can%20query%20the%20RPM%20database%20with%20Python.md) and the usage of [virtual environment](https://opensource.com/article/20/10/venv-python), but you can take a shortcut and just do this:
 
 ```shell
 sudo dnf install -y python3-rpm
@@ -40,10 +40,37 @@ git clone git@github.com:josevnz/tutorials.git
 cd rpm_query
 python3 -m venv --system-site-packages ~/virtualenv/rpm_query
 . ~/virtualenv/rpm_query/bin/activate
+(rpm_query)$ 
 ```
 
 # Packaging and installing the distribution
 
+## Why you don't want to use an RPM to package your Python application
+
+Well, there is no short answer for that.
+
+RPM is *great* [if you want to share](https://www.redhat.com/sysadmin/package-linux-applications-rpm) your application with __all__ the users of your system, specially because RPM can install related dependencies for you automatically.
+
+For example, the RPM Python bindings (rpm-python3) is distributed that way, make sense as it is thinly tied to RPM.
+
+In some causes is also a disadvantage:
+* You will need root elevated access to install an RPM. If the code is malicious it will take control of your server very easily (that's why [you always check the RPM signatures](https://www.redhat.com/sysadmin/rpm-gpg-verify-packages) and download code from well know sources right?)
+* You decide to upgrade an RPM that may be incompatible with older dependent applications. That will prevent an upgrade.
+* RPM is not well suited to share 'test' code created during continuous integration, at least in bare-metal deployments. If you create a Docker container that is probably a different story...
+* If your Python code has dependencies it is very likely you will also have to package them as RPMS.
+
+## Enter virtual environments and pip + setuptools
+
+How these 3 tools solve the RPM limitations mentioned earlier?:
+* [Virtual environment](https://docs.python.org/3/library/venv.html) will allow you to install applications without having elevated permissions
+* The application is self-contained to the virtual environment, you can install different versions of the libraries without affecting the whole system
+* It is very easy to integrate a virtual environment with continuous integration and unit testing. After the tests pass, the environment can be recycled
+* [setuptools](https://packaging.python.org/tutorials/installing-packages/) solves the problem of packaging your application in a nice directory structure, and making your scripts and libraries vailable to users.
+* setuptools also deals with the issue of keeping track of your dependencies with proper version check, to make the build process repeatable.
+* setuptools works with [pip](https://pip.pypa.io/en/stable/), the Python package manager
+* Best part is that both virtual environments and setuptools have excellent support in IDE like Pycharm or VSCode.
+
+# Working with setuptools
 Now that you're ready to deploy your application, you can package it, copy its wheel file, and then install it in a new virtual environment. First, you need to define a very important file: `setup.py`, which is used by [setuptools](https://opensource.com/article/21/11/packaging-python-setuptools).
 
 The most important sections in the file below are:
@@ -102,23 +129,42 @@ setup(
 )
 ```
 
+Things to note:
+* I stored the version on the reporter/__init__.py package module in order to share
+with other parts of the application, not just setuptools. Also used a [semantic version schema](https://packaging.python.org/guides/distributing-packages-using-setuptools/#semantic-versioning-preferred) naming convention.
+* Readme of the module is also stored on an external file. This makes it editing the file much easier without worrying about size or breaking the python syntax.
+* [Classifiers](https://pypi.org/pypi?%3Aaction=list_classifiers) make it easier to see the intent of your application
+* You can define packaging dependencies (setup_requires) and runtime dependencies (install_requires)
+* I need the wheel package as I want to create a '[pre-compiled](https://packaging.python.org/glossary/#term-Wheel)' distribution that is faster to install than other modes.
+
+## How to deploy while you are testing
+
+You don't need to package and deploy your application in full mode. setuptools has a very convenient mode that will install dependencies and will let you keep editing your code while testing, called the 'develop' mode:
+
 ```shell
 (rpm_query)$ python setup.py develop
 ```
 
+This will create special symbolic links that will put your scripts (remember that section in setup.py?) into your path.
+
 By the way, once you are done testing you can remove development mode:
 
 ```shell
-python setup.py develop --uninstall
+(rpm_query)$ python setup.py develop --uninstall
 ```
 
 The official documentation recommends migrating from a `setup.py` configuration to `setup.cfg`, but I decided to use `setup.py` because it's what I'm familiar with.
 
+## Creating a pre-compiled distribution
+
+It is easy as typing this:
 
 ```shell
 (rpm_query)$ python setup.py bdist_wheel
 running bdist_wheel
-...
+...  # Omitted output
+(rpm_query)$ ls dist/
+rpm_query-0.0.1-py3-none-any.whl
 ```
 
 Then you can install it on the same machine or a new machine, in a virtual environment:
@@ -128,13 +174,9 @@ Then you can install it on the same machine or a new machine, in a virtual envir
 dist/rpm_query-1.0.0-py3-none-any.whl
 ```
 
-By the way, once you are done testing you can remove development mode:
+What if you want to share your PIP with other users? You could copy the wheel file on the other machines and have your users install it, but there is a better way
 
-```shell
-python setup.py develop --uninstall
-```
-
-# Uploading your application to a repository
+# Uploading your application to a repository with twine
 
 The most common way to share Python code is to upload it to an artifact manager like Sonatype Nexus. For that, you can use a tool like [twine](https://twine.readthedocs.io/en/latest/).
 
