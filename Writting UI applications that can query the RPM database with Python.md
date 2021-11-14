@@ -13,6 +13,7 @@ A good system administrator you should definitely know how to make more user-fri
 If you want to follow this short tutorial, you should do the following
 
 ```shell=
+sudo dnf install -y python3-rpm
 git clone git@github.com:josevnz/tutorials.git
 cd rpm_query
 python3 -m venv --system-site-packages ~/virtualenv/rpm_query
