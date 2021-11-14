@@ -106,7 +106,7 @@ Now we can see how it was implemented:
 * The customization magic happens in the constructor of the QueryHelper class, with [named parameters](https://www.python.org/dev/peps/pep-3102/).
 * After that, the code returns database transactions in the ```QueryHelper.__enter__``` method.
 
-```python=
+```python
 """
 Wrapper around RPM database
 """
