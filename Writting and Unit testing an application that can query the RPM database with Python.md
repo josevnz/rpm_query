@@ -1,8 +1,8 @@
-# Writting and unit testing an application to query the RPM database with Python
+# Writing and unit testing an application to query the RPM database with Python
 
 When you install software on a Linux system, your package manager keeps track of what's installed, what it's dependent upon, what it provides, and much more.
 The usual way to look at that metadata is through your package manager. In the case of Fedora or RedHat it is the [RPM database.](https://rpm.org/)
-The RPM database, for example, can be queried from the command line with the `rpm` command, which supports some very nice formatting options. For example, to get a list of all packages sorted by size, you can do the following, with a little bit of Bash glue:
+The RPM database, for example, can be queried from the command line with the `rpm` command, which supports some very nice formatting options. For example, to get a list of all packages sorted by size, you can do the following, with a little of Bash glue:
 
 ```shell=
 $ rpm -qa --queryformat "%{NAME}-%{VERSION} %{SIZE}\n"|sort -r -k 2 -n
@@ -18,19 +18,19 @@ docker-ce-19.03.12 106517368
 ansible-2.9.9 102477070
 ```
 
-But what if you want to format the numbers in the output? Or to be able to display the results with scrolling? The `rpm` command has many options, but what if you need to integrate RPM output in other applications?
-And once you've written it, what about unit testing your code script? Bash is not exactly good at that.
+What if you want to format the numbers in the output? Or to be able to display the results with scrolling? The `rpm` command has many options, but what if you need to integrate RPM output in other applications?
+Once you've written it, what about unit testing your code script? Bash is not exactly good at that.
 
-Instead this is where other languages like Python shine. In this tutorial, I demonstrate how to:
+Instead, this is where other languages like Python shine. In this tutorial, I demonstrate how to:
 
 * Interact with the RPM database using Python RPM bindings.
-* Will write my own [Python class](https://docs.python.org/3/tutorial/classes.html) to create a wrapper around the provided RPM bindings, but even if you don't know much about object oriented programming it should be easy to grasp (will keep advanced features out like virtual classes, data classes and other features).
+* Will write my own [Python class](https://docs.python.org/3/tutorial/classes.html) to create a wrapper around the provided RPM bindings, but even if you don't know much about object-oriented programming it should be easy to grasp (will keep advanced features out like virtual classes, data classes and other features).
 * Make the script easier to use and customize by calling Argparse methods to parse the command line interface.
 * Unit test your new code with unittest
 
-That's a lot to cover, so basic knowledge of Python is required (for example [OO programming](https://www.datacamp.com/community/tutorials/python-oop-tutorial)). Also you should know what [RPM database.](https://rpm.org/) is. But even if you don't know much, the code is simple to follow and the boilerplate code is small.
+That's a lot to cover, so basic knowledge of Python is required (for example [OO programming](https://www.datacamp.com/community/tutorials/python-oop-tutorial)). Also, you should know what [RPM database.](https://rpm.org/) is. Even if you don't know much, the code is simple to follow, and the boilerplate code is small.
 
-There are [several chapters](https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/RPM_Guide/ch-rpm-programming-python.html) dedicated on how to interact with RPM the Fedora documentation, but in this article you'll write a simple program that prints a list of RPM packages sorted by size.
+There are [several chapters](https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/RPM_Guide/ch-rpm-programming-python.html) dedicated on how to interact with the RPM in the Fedora documentation, but in this article you'll write a simple program that prints a list of RPM packages sorted by size.
 
 # The RPM database and Python
 
@@ -55,15 +55,15 @@ cd rpm_query
 
 ## Virtual environment
 
-Python has a feature called '[virtual environments](https://opensource.com/article/20/10/venv-python)'. A virtual environment provides you a sandboxed location where:
+Python has a feature called '[virtual environments](https://opensource.com/article/20/10/venv-python)'. A virtual environment provides you a sandbox location where:
 
 * Can install different versions of libraries than the rest of the system
 * Get isolation from bad or unstable libraries. An issue with a library doesn't compromise your whole python installation.
-* Because is isolated it allows you to test your software more easily before you [merge your feature branch it into your main branch](https://www.git-tower.com/blog/understanding-branches-in-git/) (A [continous integration pipeline](https://www.digitalocean.com/community/tutorials/an-introduction-to-continuous-integration-delivery-and-deployment) can take care of deploying your new code on a test virtual environment).
+* Because is isolated it allows you to test your software more easily before you [merge your feature branch it into your main branch](https://www.git-tower.com/blog/understanding-branches-in-git/) (A [continuous integration pipeline](https://www.digitalocean.com/community/tutorials/an-introduction-to-continuous-integration-delivery-and-deployment) can take care of deploying your new code on a test virtual environment).
 
 On this tutorial we will use a virtual environment wht the following features:
 * Will be called 'rpm_query'
-* We will 'leak' the system packages inside the environment, as the system package you need is python3-rpm and it's not available through `pip` (You can provide access to site packages using the `--system-site-packages` option).
+* We will 'leak' the system packages inside the environment, as the system package you need is python3-rpm, and it's not available through `pip` (You can provide access to site packages using the `--system-site-packages` option).
 
 In a nutshell will create and activate it like this:
 
@@ -77,7 +77,7 @@ python3 -m venv --system-site-packages ~/virtualenv/rpm_query
 In this example application, I'll wrap the RPM instance in a '[context manager](https://docs.python.org/3/library/contextlib.html)'.
 This makes it easier to use, and also saves you from worrying about manually closing the RPM database. Also, I'll take a few shortcuts to return the result of the database query.
 
-Putting all this functionality into a class (a collection of data and methods) together is what makes object orientation so useful; in our case the RPM functionality is on a class called ```QueryHelper``` and its sole purpouse is:
+Putting all this functionality into a class (a collection of data and methods) together is what makes object orientation so useful; in our case the RPM functionality is on a class called ```QueryHelper``` and its sole purpose is:
 * Define filtering parameters like number of items and sorting results at creation time (we use a class constructor for that)
 * To provide a way to iterate through every package of the system
 
@@ -101,7 +101,7 @@ with QueryHelper() as rpm_query:
 
 Now we can see how it was implemented:
 
-* [The code](https://github.com/josevnz/rpm_query/blob/main/reporter/rpm_query.py) that imports the RPM is in a try/except clause because it is possible that the RPM is not installed. So if it fails, it does so gracefully, explaining that rpm needs to be installed.
+* [The code](https://github.com/josevnz/rpm_query/blob/main/reporter/rpm_query.py) that imports the RPM is in a try/except because it is possible that the RPM is not installed. So if it fails, it does so gracefully, explaining that rpm needs to be installed.
 * The `__get__` function takes care of return the results sorted or 'as-is'. We pass a reference to this function to the code that queries the database
 * The customization magic happens in the constructor of the QueryHelper class, with [named parameters](https://www.python.org/dev/peps/pep-3102/).
 * After that, the code returns database transactions in the ```QueryHelper.__enter__``` method.
@@ -175,9 +175,9 @@ class QueryHelper:
 
 A few things to notice:
 
-* We can reuse this search logic not just on our CLI application but also on future GUI, REST services because functionality lives on a well defined unit (data + actions)
-* Did you saw how I 'hinted' the interpreter about the types of the arguments in the constructor (like limit: int is an integer)? This helps IDE like Pycharm a lot, so they can provide auto-completion for you and your users. Python doesn't require it but ***it is as good practice***.
-* Some times is good to provide default values to your parameters. That can make your class easier to use if the developer decides not to override the defaults (makes your argument 'optional').
+* We can reuse this search logic not just on our CLI application but also on future GUI, REST services because functionality lives on a well-defined unit (data + actions)
+* Did you see how I 'hinted' the interpreter about the types of the arguments in the constructor (like limit: int is an integer)? This helps IDE like Pycharm a lot, so they can provide auto-completion for you and your users. Python doesn't require it but ***it is as good practice***.
+* Some times it is good to provide default values to your parameters. That can make your class easier to use if the developer decides not to override the defaults (makes your argument 'optional').
 * It is also a good practice to document your methods, even briefly. IDE can show you this detail when you are using the methods,
 
 Will cover unit testing next.
@@ -186,18 +186,18 @@ Will cover unit testing next.
 
 *How good is this code without testing*? 
 
-You definitely want to automate the testing of your code. Unit testing is different than other types of testing. Overall, it makes your application more robust because it ensures the smallest components of your application behave correctly (and it works better if you [do it after every change](https://martinfowler.com/articles/continuousIntegration.html) in your code)
+You definitely want to automate the testing of your code. Unit testing is different from other types of testing. Overall, it makes your application more robust because it ensures the smallest components of your application behave correctly (and it works better if you [do it after every change](https://martinfowler.com/articles/continuousIntegration.html) in your code)
 
 In this case, python [unittest](https://docs.python.org/3/library/unittest.html) is nothing more than a class automates proving if a function behaves correctly.
 
 ## What is a [good unit test](https://www.artofunittesting.com/)?
 * It is small (if a method is testing more than one feature it means it should be split into more tests)
-* It is self contained. Ideally should not have external dependencies like databases or application servers. Sometimes you can replace those dependencies with [Mock objects](https://docs.python.org/3/library/unittest.mock.html) that can mimic a part of the system and even allow you to simulate failures.
+* It is self-contained. Ideally should not have external dependencies like databases or application servers. Sometimes you can replace those dependencies with [Mock objects](https://docs.python.org/3/library/unittest.mock.html) that can mimic a part of the system and even allow you to simulate failures.
 * It is repeatable. The result of running your test should be the same. For that you maye need to clean before and after running a test ([setUp(), tearDown()](https://docs.python.org/3/library/unittest.html#unittest.TestCase.setUp))
 
 I wrote a [unit test](https://github.com/josevnz/rpm_query/blob/main/tests/test_rpm_query.py) for the `reporter.rpm_query.QueryHelper` class:
-* The code has several assertions that must be true in order to pass the each test case.
-* I do not use Mock objects because the RPM framework is so ingrained into Fedora/ RedHat it is guaranteed the real database will be there. Also the tests are non-destructive.
+* The code has several assertions that must be true in order to pass the test case.
+* I do not use Mock objects because the RPM framework is so ingrained into Fedora/ RedHat it is guaranteed the real database will be there. Also, the tests are non-destructive.
 
 ```python
 """
@@ -280,7 +280,7 @@ I strongly recommend you read [official unittest documentation](https://docs.pyt
 We can write a small CLI using the `QueryHelper` class created earlier and to make it easier to customize we use [argparse](https://docs.python.org/3/library/argparse.html).
 
 Argparse allows you to do the following:
-* Validate user input and restrict number of options. For example to check if the number of results is a non negative number I wrote a type 'validator' on the repoter/__init__.py module (__I could have done it into the class constructor__ but I wanted to show you this feature. You can use it to add extra logic not present in the original code):
+* Validate user input and restrict number of options. For example to check if the number of results is a non-negative number I wrote a type 'validator' on the reporter/__init__.py module (__I could have done it into the class constructor__, I wanted to show you this feature. You can use it to add extra logic not present in the original code):
 ```python
 def __is_valid_limit__(limit: str) -> int:
     try:
@@ -374,7 +374,7 @@ kernel-core-5.14.12: 79,447,964
 
 This has been a lot of information, and here's a reminder of what I covered:
 
-* Write modules and clases to interact with the RPM database. This article barely scratches the surface of [all the things](https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/RPM_Guide/ch-rpm-programming-python.html) you can do with the API.
+* Write modules and classes to interact with the RPM database. This article barely scratches the surface of [all the things](https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/RPM_Guide/ch-rpm-programming-python.html) you can do with the API.
 * Automatically test small pieces of your application with unittest.
 * Learn how to use [Argparse](https://opensource.com/article/21/7/argument-parsing-python-argparse) to make your application easier to use.
 

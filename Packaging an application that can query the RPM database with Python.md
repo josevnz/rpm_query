@@ -26,11 +26,9 @@ cldr-emoji-annotation-38: 80,832,870
 kernel-core-5.14.12: 79,447,964
 ```
 
-The problem we are trying to solve now is how we can package our application so it can be easily installed on other machines, including all the dependencies. I will show you how to use setuptools for that.
+The problem we are trying to solve now is how we can package our application, so it can be easily installed on other machines, including all the dependencies. I will show you how to use setuptools for that.
 
-That's a lot to cover, so basic knowledge of Python is required. But even if you don't know much, the code is simple to follow and the boilerplate code is small.
-
-I assume you already know what 
+That's a lot to cover, so basic knowledge of Python is required. Even if you don't know much, the code is simple to follow, and the boilerplate code is small.
 
 # Setup
 
@@ -46,7 +44,7 @@ python3 -m venv --system-site-packages ~/virtualenv/rpm_query
 
 # Packaging and installing the distribution
 
-Now that you're ready to deploy your application, you can package it, copy its wheel file, and then install it in a new virtual environment. But first, you need to define a very important file: `setup.py`, which is used by [setuptools](https://opensource.com/article/21/11/packaging-python-setuptools).
+Now that you're ready to deploy your application, you can package it, copy its wheel file, and then install it in a new virtual environment. First, you need to define a very important file: `setup.py`, which is used by [setuptools](https://opensource.com/article/21/11/packaging-python-setuptools).
 
 The most important sections in the file below are:
 
@@ -123,7 +121,7 @@ running bdist_wheel
 ...
 ```
 
-Then you can install it on the the same machine or a new machine, in a virtual environment:
+Then you can install it on the same machine or a new machine, in a virtual environment:
 
 ```shell
 (rpm_query)$ python setup.py install \

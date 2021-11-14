@@ -1,12 +1,12 @@
-# Writting UI applications in Python
+# Writing UI applications that can query the RPM database with Python
 
-Python has available [many UI frameworks](https://pythongui.org/6-best-python-gui-frameworks-in-2021/). Majority of them are very mature with Open Source and commercial support, some are mostly bindings to already available C/C++ UI libraries; in any case, the choice of whih library to use comes to 3 factors:
+Python has available [many UI frameworks](https://pythongui.org/6-best-python-gui-frameworks-in-2021/). Majority of them are very mature with Open Source and commercial support, some are mostly bindings to already available C/C++ UI libraries; in any case, the choice of which library to use comes to 3 factors:
 
-1. **Maturity**: it is well supported by the community, it is stable, does it have good documentation
-2. **Integration with Python**: You may think this is is an understatement but this may pose a significant entry barrier to the toolkit (you don't want to feel you are writting a GUI in assembler, after all is Python)
-3. **Does it support your use case?**: If you want to write mostly forms then libraries like [Pyform](https://pyforms.readthedocs.io/en/v3.0/) or [Tkinter](https://www.askpython.com/tkinter) may be better for you (*Tkinker is very well known*). If your GUI is more complex then [WXPython](https://www.wxpython.org/) may be a better fit as it supports a wide range of features.
+1. **Maturity**: it is well-supported by the community, it is stable, does it have good documentation
+2. **Integration with Python**: You may think this is an understatement but this may pose a significant entry barrier to the toolkit (you don't want to feel you are writing a GUI in an assembler, after all is Python)
+3. **Does it support your use case?**: If you want to write mostly forms then libraries like [Pyform](https://pyforms.readthedocs.io/en/v3.0/) or [Tkinter](https://www.askpython.com/tkinter) may be better for you (*Tkinker is very well known*). If your GUI is more complex than [WXPython](https://www.wxpython.org/) may be a better fit as it supports a wide range of features.
 
-A good system administrator you should definitely know how to make more user friendly applications. You will be surprised how much they can improve your productivity and also the productivity of your users.
+A good system administrator you should definitely know how to make more user-friendly applications. You will be surprised how much they can improve your productivity and also the productivity of your users.
 
 ## A quick detour: Prepare your environment
 
@@ -55,7 +55,7 @@ iwl7260-firmware-25.30.13.0: 148,167,043
 ```
 
 ## rpmq script, rich version
-But don't get fooled, below is the code of my python script with a progress bar and results on a **really** nice table:
+Don't get fooled, below is the code of my python script with a progress bar and results on a **really** nice table:
 
 ```python=
 #!/usr/bin/env python
@@ -115,7 +115,7 @@ if __name__ == "__main__":
 
 ```
 
-It is amazing how easy was to add a table and a progress bar to the original script.
+It is amazing how easy was to add a table, and a progress bar to the original script.
 
 So how the new improved text UI look like?
 
@@ -126,10 +126,10 @@ So how the new improved text UI look like?
 
 Tkinter is a collection of frameworks: TCL, TK and widgets (Ttk).
 
-The framework is mature and it has TONS [of documentation and examples](https://docs.python.org/3/library/tkinter.html). There is also BAD documentation out there, so I would suggest you stick with the official [tutorial](https://tkdocs.com/tutorial/) and then once you master the basis move on with other tutorials.
+The framework is mature, and it has TONS [of documentation and examples](https://docs.python.org/3/library/tkinter.html). There is also BAD documentation out there, so I would suggest you stick with the official [tutorial](https://tkdocs.com/tutorial/) and then once you master the basis move on with other tutorials.
 
 Few things to notice:
-* Quickly check if youe system has Tkinter [properly installed](https://tkdocs.com/tutorial/install.html#installlinux) like this: ```python -m tkinter```
+* Quickly check if your system has Tkinter [properly installed](https://tkdocs.com/tutorial/install.html#installlinux) like this: ```python -m tkinter```
 * You make your GUI responsive to events by using callback functions (command=)
 * Tkinter communicate using special variables that track changes for you (*Var, like StringVar)
 
@@ -301,11 +301,11 @@ You can see the code is more verbose now, mostly due the event handling:
 
 ![](https://raw.githubusercontent.com/josevnz/rpm_query/main/rpmq_tkinter.png)
 
-But also means you can re-do your queries once the script starts by tweaking the parameters on the search options frame.
+Also means you can re-do your queries once the script starts by tweaking the parameters on the search options frame.
 
 # Another way to do it: DearPyGui
 
-[DearPyGui](https://github.com/hoffstadt/DearPyGui), by [Jonathan Hoffstadt](https://github.com/hoffstadt) is cross platform (Linux, Windows, OSX) and it has some really nice capabilities. 
+[DearPyGui](https://github.com/hoffstadt/DearPyGui) by [Jonathan Hoffstadt](https://github.com/hoffstadt) is cross platform (Linux, Windows, OSX) and it has some really nice capabilities. 
 
 ## Installing DearPyGui
 
@@ -449,9 +449,9 @@ if __name__ == "__main__":
 
 ```
 
-You will notice than DearPyGUI uses contexts when nesting components and that makes it much more easier when creating the GUI. The code is also less verbose than the Tkinter code and the support for types is much better (Pycharm for example offers you to automplete arguments to methods, etc.)
+You will notice than DearPyGUI uses contexts when nesting components and that makes it much easier when creating the GUI. The code is also less verbose than the Tkinter code, and the support for types is much better (Pycharm for example offers you to autocomplete arguments to methods, etc.)
 
-DearPyGui is still very young (version 1.0.3 at the time of this writting) and has a [few bugs, specially on older Linux distributions](https://github.com/hoffstadt/DearPyGui/issues), but looks very promising and is in very active development stage.
+DearPyGui is still very young (version 1.0.3 at the time of this writing) and has a [few bugs, specially on older Linux distributions](https://github.com/hoffstadt/DearPyGui/issues), but looks very promising and is in very active development stage.
 
 
 So how the UI looks like?
@@ -462,7 +462,7 @@ So how the UI looks like?
 
 1. You have many options in Python to make your scripts more user-friendly. Even simple actions like [using Argparse](https://www.digitalocean.com/community/tutorials/how-to-use-argparse-to-write-command-line-programs-in-python) will make a big impact in the way a script is used.
 2. Look for the official documentation, user groups. Also don't forget the good tutorials out there, for example [Rich](https://towardsdatascience.com/rich-generate-rich-and-beautiful-text-in-the-terminal-with-python-541f39abf32e), and [Tkinter](https://www.datacamp.com/community/tutorials/gui-tkinter-python) are mature alternatives to make your UI much better. Also [DearPyGUI](https://itnext.io/python-guis-with-dearpygui-137f4a3360f2) looks very promising.
-3. Not everything needs a complex UI. But frameworks like Rich make it trivial to improve your programs by making exceptions and objects inspections more readable on your text only scripts.
+3. Not everything needs a complex UI. Frameworks like Rich make it trivial to improve your programs by making exceptions and objects inspections more readable on your text only scripts.
 
 
 
