@@ -1,8 +1,9 @@
 # rpm_query
 
-This is a simple project that aims: 
+This is a simple project that aims:
+* How to write a class that can query the contents of the RPM database
 * How to package and distribute a python application using setuptools
-* How to write nice command line arguments with argparse and rich
+* How to write nice command line arguments with argparse and rich, tkinter, DearPyGUI
 
 # Local installation
 
