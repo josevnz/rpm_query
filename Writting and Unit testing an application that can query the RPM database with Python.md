@@ -84,7 +84,8 @@ Putting all this functionality into a class (a collection of data and methods) t
 Let me show you first how QueryHelper class can used to get a list of a max 5 packages, sorted by size:
 
 ```python
-with QueryHelper(limit=5, sorted_val=True)) as rpm_query:
+from reporter.rpm_query import QueryHelper
+with QueryHelper(limit=5, sorted_val=True) as rpm_query:
     for package in rpm_query:
         print(f"{package['name']}-{package['version']}: {package['size']:,.0f}")
 ```
@@ -94,6 +95,7 @@ I used a Python feature called ['named arguments'](https://trstringer.com/python
 What if you are happy with the default arguments? Not a problem:
 
 ```python
+from reporter.rpm_query import QueryHelper
 with QueryHelper() as rpm_query:
     for package in rpm_query:
         print(f"{package['name']}-{package['version']}: {package['size']:,.0f}")
@@ -214,8 +216,8 @@ DEBUG = True if os.getenv("DEBUG_RPM_QUERY") else False
 class QueryHelperTestCase(unittest.TestCase):
 
     def test_default(self):
-        with QueryHelper() as rpmquery:
-            for package in rpmquery:
+        with QueryHelper() as rpm_query:
+            for package in rpm_query:
                 self.assertIn('name', package, "Could not get 'name' in package?")
 
     def test_get_unsorted_counted_packages(self):
@@ -224,9 +226,9 @@ class QueryHelperTestCase(unittest.TestCase):
         :return:
         """
         LIMIT = 10
-        with QueryHelper(limit=LIMIT, sorted_val=False) as rpmquery:
+        with QueryHelper(limit=LIMIT, sorted_val=False) as rpm_query:
             count = 0
-            for package in rpmquery:
+            for package in rpm_query:
                 count += 1
                 self.assertIn('name', package, "Could not get 'name' in package?")
             self.assertEqual(LIMIT, count, f"Limit ({count}) did not worked!")
@@ -236,10 +238,10 @@ class QueryHelperTestCase(unittest.TestCase):
         Default query is all packages, sorted by size
         :return:
         """
-        with QueryHelper() as rpmquery:
+        with QueryHelper() as rpm_query:
             previous_size = 0
             previous_package = None
-            for package in rpmquery:
+            for package in rpm_query:
                 size = package['size']
                 if DEBUG:
                     print(f"name={package['name']} ({size}) bytes")
@@ -258,9 +260,9 @@ class QueryHelperTestCase(unittest.TestCase):
         :return:
         """
         package_name = "glibc-common"
-        with QueryHelper(name=package_name, limit=1) as rpmquery:
+        with QueryHelper(name=package_name, limit=1) as rpm_query:
             found = 0
-            for package in rpmquery:
+            for package in rpm_query:
                 self.assertIn('name', package, "Could not get 'name' in package?")
                 if DEBUG:
                     print(f"name={package['name']}, version={package['version']}")

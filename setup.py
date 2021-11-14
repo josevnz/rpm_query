@@ -24,6 +24,7 @@ setup(
         'reporter'
     ],
     long_description=__read__('README.md'),
+    long_description_content_type="text/markup",
     # https://pypi.org/pypi?%3Aaction=list_classifiers
     classifiers=[
         "Development Status :: 3 - Alpha",
