@@ -176,23 +176,120 @@ dist/rpm_query-1.0.0-py3-none-any.whl
 
 What if you want to share your PIP with other users? You could copy the wheel file on the other machines and have your users install it, but there is a better way
 
+# Setting up a private Pypi server
+
+*Note:* This setup is not production quality because:
+* Is not secure as it uses passwords instead of authentication tokens. 
+* No SSL encryption. HTTP means clear text password going over the wire. 
+* No storage redundancy. Ideally your storage PIP storage should have some sort of redundancy, backups.
+
+I just want you to show you what is really possible beyond installing from a wheel file. We will focus on how to set up a private server compatible with [Pypi](https://pypi.org/), using a Docker container running [pypiserver](https://pypi.org/project/pypiserver/#using-the-docker-image). 
+
+First we create the directory where our packages will be stored:
+```shell
+mkdir -p -v $HOME/pypiserver
+mkdir: created directory '/home/josevnz/pypiserver'
+```
+
+Then we set up a user/password to upload our packages using [htpasswd](https://httpd.apache.org/docs/current/programs/htpasswd.html):
+```shell
+htpasswd -c $HOME/.htpasswd josevnz
+New password: 
+Re-type new password: 
+Adding password for user josevnz
+```
+
+After that we run the docker container in a detached mode:
+```shell
+$ docker run --detach --name privatepypiserver --publish 8080:8080 --volume ~/.htpasswd:/data/.htpasswd --volume $HOME/pypiserver:/data/packages pypiserver/pypiserver:latest -P .htpasswd packages
+f95f59a882b639db4509081de19a670fa8fdd93c63c3d4562c89e49e70bf6ee5
+$ docker ps
+CONTAINER ID   IMAGE                          COMMAND                  CREATED         STATUS         PORTS                                       NAMES
+f95f59a882b6   pypiserver/pypiserver:latest   "/entrypoint.sh -P .…"   7 seconds ago   Up 6 seconds   0.0.0.0:8080->8080/tcp, :::8080->8080/tcp   privatepypiserver
+```
+
+We can confirm is running by pointing curl or lynx to our new privatepypiserver:
+```shell
+[josevnz@dmaf5 ~]$ lynx http://localhost:8080                                                                                                                                            Welcome to pypiserver!
+                                                                         Welcome to pypiserver!
+
+   This is a PyPI compatible package index serving 0 packages.
+
+   To use this server with pip, run the following command:
+        pip install --index-url http://localhost:8080/simple/ PACKAGE [PACKAGE2...]
+
+   To use this server with easy_install, run the following command:
+        easy_install --index-url http://localhost:8080/simple/ PACKAGE [PACKAGE2...]
+
+   The complete list of all packages can be found here or via the simple index.
+
+   This instance is running version 1.4.2 of the pypiserver software.
+```
+
+Now let's move to the part where we upload our wheel to the private Pypi server
+
 # Uploading your application to a repository with twine
 
-The most common way to share Python code is to upload it to an artifact manager like Sonatype Nexus. For that, you can use a tool like [twine](https://twine.readthedocs.io/en/latest/).
+The most common way to share Python code is to upload it to an artifact manager like Sonatype Nexus or Pypiserver. For that, you can use a tool like [twine](https://twine.readthedocs.io/en/latest/).
 
 ```shell
 (rpm_query)$ pip install twine
-# Configure twine to upload to a repository without prompting a password, etc, by editing ~/.pypirc
-...
-(rpm_query)$ python upload --repository myprivaterepo \
-dist/rpm_query-1.0.0-py3-none-any.whl
+```
+Next step is to set up [~/.pypirc](https://packaging.python.org/specifications/pypirc/#pypirc) to allow password-less uploads to our local PyPi server: 
+
+```shell
+[distutils]
+index-servers =
+    pypi
+    privatepypi
+
+[pypi]
+repository = https://upload.pypi.org/legacy/
+
+[privatepypi]
+repository = http://localhost:8080/
+username = josevnz
+password = 3n4bl3
 ```
 
-Setting this up is a lengthy topic by itself, which is out of scope for this article.
+Yes, the password is saved in clear-text, so for now make sure file is readable only you:
+```shell
+chmod 600 ~/.pypirc
+```
+
+Finally, we upload the wheel:
+
+```shell
+(rpm_query) [josevnz@dmaf5 rpm_query]$ twine upload -r privatepypi dist/rpm_query-0.0.1-py3-none-any.whl 
+Uploading distributions to http://localhost:8080/
+Uploading rpm_query-0.0.1-py3-none-any.whl
+100%|██████████████████████████████████
+```
+
+Confirm it was installed (```lynx http://localhost:8080/packages/```):
+```shell
+                                                                           Index of packages
+
+   rpm_query-0.0.1-py3-none-any.whl
+
+Commands: Use arrow keys to move, '?' for help, 'q' to quit, '<-' to go back.
+  Arrow keys: Up and Down to move.  Right to follow a link; Left to go back.
+ H)elp O)ptions P)rint G)o M)ain screen Q)uit /=search [delete]=history list
+```
+
+# Installing from our local privatepypi server
+
+Wait!, don't leave yet. It is time to install the package from our private Pypi server:
+
+```shell
+
+```
 
 # What you've learned
 
 This has been a lot of information, and here's a reminder of what I covered:
 
 * Package your application with [setuptools](https://setuptools.pypa.io/en/latest/index.html) or a framework of your choice. Make installations and testing repeatable.
-
+* Install a private Pypi server using a Docker container
+* Upload the generated wheel package to the private repository
+* Install the wheel from the private repository instead of a file
