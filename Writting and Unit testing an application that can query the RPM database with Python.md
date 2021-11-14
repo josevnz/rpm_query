@@ -272,15 +272,15 @@ if __name__ == '__main__':
     unittest.main()
 ```
 
-I strongly recommend you read [official unittest documentation](https://docs.python.org/3/library/unittest.html) for more details, as there's so much more unit testing than this simple code, like [mock testing](https://docs.python.org/3/library/unittest.mock.html), which is particularly useful for complex dependency scenarios.
+I strongly recommend you read [official unittest documentation](https://docs.python.org/3/library/unittest.html) for more details, as there's so much more unit testing than this simple code, like [mock testing](https://docs.python.org/3/library/unittest.mock.html), which is particularly useful for complex system dependency scenarios.
 
 
 # Making the script more usable with Argparse
 
-We can write a small CLI using the `QueryHelper` class we wrote earlier and to make it easier to customize we use [argparse](https://docs.python.org/3/library/argparse.html).
+We can write a small CLI using the `QueryHelper` class created earlier and to make it easier to customize we use [argparse](https://docs.python.org/3/library/argparse.html).
 
 Argparse allows you to do the following:
-* Validate user input and restrict number of options. For example to check if the number of results is a non negative number I wrote a type 'validator' on the repoter/__init__.py module:
+* Validate user input and restrict number of options. For example to check if the number of results is a non negative number I wrote a type 'validator' on the repoter/__init__.py module (__I could have validated that into the class constructor__ but I wanted to show you this feature. You can use it to add extra validation logic not present in the original code):
 ```python
 def __is_valid_limit__(limit: str) -> int:
     try:
