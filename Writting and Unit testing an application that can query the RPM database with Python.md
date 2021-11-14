@@ -84,7 +84,7 @@ Putting all this functionality into a class (a collection of data and methods) t
 Let me show you first how QueryHelper class can used to get a list of a max 5 packages, sorted by size:
 
 ```python
-with QueryHelper(name="", limit=5, sorted_val=True)) as rpm_query:
+with QueryHelper(limit=5, sorted_val=True)) as rpm_query:
     for package in rpm_query:
         print(f"{package['name']}-{package['version']}: {package['size']:,.0f}")
 ```
