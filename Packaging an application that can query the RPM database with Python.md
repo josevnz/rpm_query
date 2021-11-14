@@ -277,7 +277,7 @@ repository = http://localhost:8080/
 username = josevnz
 ```
 
-You should not put the 'password = XXXX' inside the file. Let twine ask for it instead for the time being. Also make the configuration accesible only to the owner:
+You should not put the 'password = XXXX' inside the file. Let twine ask for it instead for the time being. Also make the configuration accessible only to the owner:
 
 ```shell
 chmod 600 ~/.pypirc
