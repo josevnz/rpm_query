@@ -201,7 +201,7 @@ Adding password for user josevnz
 
 After that we run the docker container in a detached mode:
 ```shell
-$ docker run --detach --name privatepypiserver --publish 8080:8080 --volume ~/.htpasswd:/data/.htpasswd --volume $HOME/pypiserver:/data/packages pypiserver/pypiserver:latest -P .htpasswd packages
+$ docker run --detach --name privatepypiserver --publish 8080:8080 --volume ~/.htpasswd:/data/.htpasswd --volume $HOME/pypiserver:/data/packages pypiserver/pypiserver:latest -P .htpasswd --overwrite packages
 f95f59a882b639db4509081de19a670fa8fdd93c63c3d4562c89e49e70bf6ee5
 $ docker ps
 CONTAINER ID   IMAGE                          COMMAND                  CREATED         STATUS         PORTS                                       NAMES
@@ -249,21 +249,26 @@ repository = https://upload.pypi.org/legacy/
 [privatepypi]
 repository = http://localhost:8080/
 username = josevnz
-password = 3n4bl3
 ```
 
-Yes, the password is saved in clear-text, so for now make sure file is readable only you:
+If you use Fedora, you should not put the 'password = XXXX' inside the file. Let twine ask for it instead for the time being. 
+
 ```shell
 chmod 600 ~/.pypirc
 ```
 
-Finally, we upload the wheel:
+Finally, we upload the wheel using twine:
 
 ```shell
-(rpm_query) [josevnz@dmaf5 rpm_query]$ twine upload -r privatepypi dist/rpm_query-0.0.1-py3-none-any.whl 
+(rpm_query) twine upload -r privatepypi dist/rpm_query-0.0.1-py3-none-any.whl 
 Uploading distributions to http://localhost:8080/
 Uploading rpm_query-0.0.1-py3-none-any.whl
 100%|██████████████████████████████████
+```
+
+Or using setuptools directly
+```shell
+(rpm_query) python setup.py sdist upload -r privatepypi
 ```
 
 Confirm it was installed (```lynx http://localhost:8080/packages/```):
@@ -281,8 +286,40 @@ Commands: Use arrow keys to move, '?' for help, 'q' to quit, '<-' to go back.
 
 Wait!, don't leave yet. It is time to install the package from our private Pypi server:
 
-```shell
+First we need [to tell PIP](https://pypi.org/project/pypiserver/#configuring-pip) that we also want to look for packages in our private PyPi server:
 
+```shell
+mkdir --verbose --parents ~/.pip
+cat<<PIPCONF>~/.pip/.pip.conf
+[global]
+extra-index-url = http://localhost:8080/simple/
+trusted-host = http://localhost:8080/simple/
+PIPCONF
+```
+
+To prove this works well, we will install on a different virtual environment (or you can override any previous installation with pip install ... --force. Your choice):
+
+```shell
+josevnz@dmaf5 ~]$ python3 -m venv ~/virtualenv/test2
+[josevnz@dmaf5 ~]$ . ~/virtualenv/test2/bin/activate
+(test2) [josevnz@dmaf5 ~]$ pip install --index-url http://localhost:8080/simple/ rpm_query
+Looking in indexes: http://localhost:8080/simple/
+Collecting rpm_query
+  Downloading http://localhost:8080/packages/rpm_query-0.0.1-py3-none-any.whl (12 kB)
+Collecting rich==9.5.1
+  Using cached rich-9.5.1-py3-none-any.whl (180 kB)
+Collecting pygments<3.0.0,>=2.6.0
+  Downloading Pygments-2.10.0-py3-none-any.whl (1.0 MB)
+     |████████████████████████████████| 1.0 MB 5.4 MB/s            
+Collecting colorama<0.5.0,>=0.4.0
+  Downloading colorama-0.4.4-py2.py3-none-any.whl (16 kB)
+Collecting typing-extensions<4.0.0,>=3.7.4
+  Downloading typing_extensions-3.10.0.2-py3-none-any.whl (26 kB)
+Collecting commonmark<0.10.0,>=0.9.0
+  Downloading commonmark-0.9.1-py2.py3-none-any.whl (51 kB)
+     |████████████████████████████████| 51 kB 5.8 MB/s             
+Installing collected packages: typing-extensions, pygments, commonmark, colorama, rich, rpm-query
+Successfully installed colorama-0.4.4 commonmark-0.9.1 pygments-2.10.0 rich-9.5.1 rpm-query-0.0.1 typing-extensions-3.10.0.2
 ```
 
 # What you've learned
