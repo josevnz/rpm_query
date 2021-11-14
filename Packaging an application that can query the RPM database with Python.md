@@ -156,7 +156,7 @@ Also, the 'long_description_content_type' section is there:
     long_description_content_type="text/markdown",
     long_description=__read__('README.md'),
 ```
-When you run it again after making the changes above you will still see the warning:
+When you run it again after making the changes above [you will still see the warning](https://github.com/pypa/warehouse/issues/4079):
 ```shell
 rpm_query) [josevnz@dmaf5 rpm_query]$ twine check dist/rpm_query-0.0.1-py3-none-any.whl 
 Checking dist/rpm_query-0.0.1-py3-none-any.whl: PASSED, with warnings
