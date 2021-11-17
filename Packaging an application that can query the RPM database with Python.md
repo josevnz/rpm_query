@@ -71,6 +71,7 @@ How these 3 tools solve the RPM limitations mentioned earlier?:
 * Best part is that both virtual environments and setuptools have excellent support in IDE like Pycharm or VSCode.
 
 # Working with setuptools
+
 Now that you're ready to deploy your application, you can package it, copy its wheel file, and then install it in a new virtual environment. First, you need to define a very important file: `setup.py`, which is used by [setuptools](https://opensource.com/article/21/11/packaging-python-setuptools).
 
 The most important sections in the file below are:
@@ -136,6 +137,14 @@ with other parts of the application, not just setuptools. Also used a [semantic 
 * [Classifiers](https://pypi.org/pypi?%3Aaction=list_classifiers) make it easier to see the intent of your application
 * You can define packaging dependencies (setup_requires) and runtime dependencies (install_requires)
 * I need the wheel package as I want to create a '[pre-compiled](https://packaging.python.org/glossary/#term-Wheel)' distribution that is faster to install than other modes.
+
+Also very important is the rpm_query.toml file:
+```
+[build-system]
+requires = ["setuptools", "wheel"]
+```
+
+rpm_query.toml is used to specify what is being used to package the scripts and to install from source.
 
 ### Quick check before uploading
 Before you upload the wheel, you should ask twine to check your settings for errors like this:
