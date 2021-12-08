@@ -3,6 +3,8 @@ Project packaging and deployment
 More details: https://setuptools.pypa.io/en/latest/userguide/quickstart.html
 """
 import os
+
+import setuptools
 from setuptools import setup
 from reporter import __version__
 
@@ -22,9 +24,8 @@ setup(
     license="Apache",
     keywords="rpm query",
     url="https://github.com/josevnz/rpm_query",
-    packages=[
-        'reporter'
-    ],
+    package_dir={"": "reporter"},
+    packages=setuptools.find_packages(where="reporter"),
     # https://pypi.org/pypi?%3Aaction=list_classifiers
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -47,5 +48,6 @@ setup(
         "bin/rpmq_rich.py",
         "bin/rpmq_dearpygui.py",
         "bin/rpmq_tkinter.py"
-    ]
+    ],
+    python_requires=">=3.9",
 )

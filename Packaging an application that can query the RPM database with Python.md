@@ -103,9 +103,8 @@ setup(
     license="Apache",
     keywords="rpm query",
     url="https://github.com/josevnz/rpm_query",
-    packages=[
-        'reporter'
-    ],
+    package_dir={"": "reporter"},
+    packages=setuptools.find_packages(where="reporter"),
     long_description=__read__('README.md'),
     # https://pypi.org/pypi?%3Aaction=list_classifiers
     classifiers=[
@@ -138,7 +137,7 @@ with other parts of the application, not just setuptools. Also used a [semantic 
 * You can define packaging dependencies (setup_requires) and runtime dependencies (install_requires)
 * I need the wheel package as I want to create a '[pre-compiled](https://packaging.python.org/glossary/#term-Wheel)' distribution that is faster to install than other modes.
 
-Also very important is the rpm_query.toml file:
+Also very important is the pyproject.toml file:
 ```
 [build-system]
 requires = ["setuptools", "wheel"]
@@ -201,6 +200,47 @@ running bdist_wheel
 ...  # Omitted output
 (rpm_query)$ ls dist/
 rpm_query-0.0.1-py3-none-any.whl
+```
+
+Or with the new preferred way, using build. First make sure the module is installed:
+
+```shell
+(rpm_query) $ pip install build
+Collecting build
+  Downloading build-0.7.0-py3-none-any.whl (16 kB)
+Collecting tomli>=1.0.0
+  Downloading tomli-1.2.2-py3-none-any.whl (12 kB)
+Requirement already satisfied: packaging>=19.0 in /usr/lib/python3.9/site-packages (from build) (20.4)
+Collecting pep517>=0.9.1
+  Downloading pep517-0.12.0-py2.py3-none-any.whl (19 kB)
+Requirement already satisfied: pyparsing>=2.0.2 in /usr/lib/python3.9/site-packages (from packaging>=19.0->build) (2.4.7)
+Requirement already satisfied: six in /usr/lib/python3.9/site-packages (from packaging>=19.0->build) (1.15.0)
+Installing collected packages: tomli, pep517, build
+Successfully installed build-0.7.0 pep517-0.12.0 tomli-1.2.2
+```
+
+And then you can package your module like this (note we tell build to not to use a virtual environment because we are already in one):
+
+```shell
+(rpm_query) $ python3 -m build --no-isolation
+* Getting dependencies for wheel...
+* Building wheel...
+running bdist_wheel
+running build
+running build_scripts
+# ... Omitted output 
+whl' and adding 'build/bdist.linux-x86_64/wheel' to it
+adding 'rpm_query-0.1.0.data/scripts/rpmq_dearpygui.py'
+adding 'rpm_query-0.1.0.data/scripts/rpmq_rich.py'
+adding 'rpm_query-0.1.0.data/scripts/rpmq_simple.py'
+adding 'rpm_query-0.1.0.data/scripts/rpmq_tkinter.py'
+adding 'rpm_query-0.1.0.dist-info/LICENSE.txt'
+adding 'rpm_query-0.1.0.dist-info/METADATA'
+adding 'rpm_query-0.1.0.dist-info/WHEEL'
+adding 'rpm_query-0.1.0.dist-info/top_level.txt'
+adding 'rpm_query-0.1.0.dist-info/RECORD'
+removing build/bdist.linux-x86_64/wheel
+Successfully built rpm_query-0.1.0-py3-none-any.whl
 ```
 
 Then you can install it on the same machine or a new machine, in a virtual environment:
