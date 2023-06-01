@@ -1,5 +1,7 @@
 # rpm_query
 
+![](mazinger-z.png)
+
 This is a simple project that aims:
 
 * How to write a class that can query the contents of the RPM database
